@@ -34,12 +34,15 @@
 
     /* ===== LOGIN ===== */
     #pantalla-login {
-      min-height: 100vh;
+      position: fixed;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
       padding: 1rem;
+      z-index: 1000;
+      overflow-y: auto;
     }
     #pantalla-login.activa { display: flex; }
 
@@ -522,7 +525,6 @@
   <div class="login-card">
     <div class="login-icon">&#127942;</div>
     <h1>Prode Mundial</h1>
-    <p class="subtitulo">Predeci los resultados y ganá</p>
 
     <div class="campo">
       <label for="input-usuario">Usuario</label>
