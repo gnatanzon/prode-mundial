@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Prode Mundial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul: #74ACDF;
+      --azul-oscuro: #4a8fc7;
+      --amarillo: #F6B40E;
+      --blanco: #ffffff;
+      --gris-fondo: #f0f7ff;
+      --gris-texto: #4a5568;
+      --rojo: #e53e3e;
+      --verde: #38a169;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gris-fondo);
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    .pantalla { display: none; }
+    .pantalla.activa { display: block; }
+
+    #pantalla-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+      padding: 1rem;
+    }
+    #pantalla-login.activa { display: flex; }
+
+    .login-card {
+      background: var(--blanco);
+      border-radius: 1.5rem;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .login-icon {
+      width: 72px;
+      height: 72px;
+      background: #2d3748;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 2rem;
+    }
+
+    .login-card h1 {
+      text-align: center;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #2d3748;
+      margin-bottom: 0.3rem;
+    }
+
+    .login-card .subtitulo {
+      text-align: center;
+      color: var(--gris-texto);
+      font-size: 0.88rem;
+      margin-bottom: 2rem;
+    }
+
+    .campo {
+      margin-bottom: 1rem;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.4rem;
+    }
+
+    .campo input, .campo select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.65rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .campo input:focus, .campo select:focus {
+      border-color: #2d3748;
+    }
+
+    .btn-primario {
+      width: 100%;
+      padding: 0.8rem;
+      background: #2d3748;
+      color: var(--blanco);
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primario:hover { background: #1a202c; }
+
+    .error-msg {
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      color: var(--rojo);
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.6rem;
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .header {
+      background: #2d3748;
+      color: var(--blanco);
+      padding: 0.9rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-titulo { font-size: 1.2rem; font-weight: 800; }
+    .header-sub { font-size: 0.78rem; opacity: 0.7; }
+
+    .btn-header {
+      padding: 0.4rem 0.8rem;
+      background: rgba(255,255,255,0.12);
+      color: var(--blanco);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-header:hover { background: rgba(255,255,255,0.2); }
+
+    .nav-tabs {
+      background: var(--blanco);
+      border-bottom: 2px solid #e2e8f0;
+      padding: 0 1rem;
+    }
+
+    .nav-tabs-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .tab {
+      padding: 0.9rem 1.2rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--gris-texto);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .tab.activo { color: #2d3748; border-bottom-color: #2d3748; }
+
+    .contenido {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    .seccion h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #2d3748;
+      margin-bottom: 1.2rem;
+    }
+
+    .form-card {
+      background: var(--blanco);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      margin-bottom: 1.2rem;
+    }
+
+    .form-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .fila-campos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 500px) { .fila-campos { grid-template-columns: 1fr; } }
+
+    .btn-accion {
+      padding: 0.65rem 1.4rem;
+      background: #2d3748;
+      color: var(--blanco);
+      border: none;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-accion:hover { background: #1a202c; }
+    .btn-accion:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    .btn-peligro {
+      background: var(--rojo);
+    }
+
+    .btn-peligro:hover { background: #c53030; }
+
+    .tabla-admin {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--blanco);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      font-size: 0.88rem;
+    }
+
+    .tabla-admin thead { background: #2d3748; color: var(--blanco); }
+    .tabla-admin th, .tabla-admin td { padding: 0.7rem 0.9rem; text-align: left; }
+    .tabla-admin tbody tr { border-bottom: 1px solid #f0f0f0; }
+    .tabla-admin tbody tr:last-child { border-bottom: none; }
+    .tabla-admin tbody tr:hover { background: #f7faff; }
+
+    .badge-estado {
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-pendiente { background: #fef3c7; color: #92400e; }
+    .badge-jugado { background: #d1fae5; color: #065f46; }
+
+    .btn-tabla {
+      padding: 0.3rem 0.7rem;
+      border-radius: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1.5px solid;
+      transition: all 0.15s;
+    }
+
+    .btn-resultado {
+      background: #e6fffa;
+      border-color: #38a169;
+      color: #276749;
+    }
+
+    .btn-resultado:hover { background: #38a169; color: white; }
+
+    .toast-container {
+      position: fixed;
+      top: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 0.7rem 1.2rem;
+      border-radius: 0.75rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--blanco);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    }
+
+    .toast.exito { background: var(--verde); }
+    .toast.error { background: var(--rojo); }
+
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
+
+    .cargando { text-align: center; padding: 2rem; color: var(--gris-texto); }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #2d3748;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 0.7rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .modal-fondo {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+
+    .modal-fondo.visible { display: flex; }
+
+    .modal {
+      background: var(--blanco);
+      border-radius: 1rem;
+      padding: 1.8rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 0.3rem;
+    }
+
+    .modal .subtitulo-modal {
+      color: var(--gris-texto);
+      font-size: 0.85rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-acciones {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: flex-end;
+      margin-top: 1.2rem;
+    }
+
+    .btn-cancelar {
+      padding: 0.6rem 1.1rem;
+      background: #f7fafc;
+      color: #2d3748;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .usuarios-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .usuario-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.9rem;
+      background: #f7fafc;
+      border-radius: 0.6rem;
+    }
+
+    .usuario-nombre { font-weight: 600; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MODAL CARGAR RESULTADO -->
+<div class="modal-fondo" id="modal-resultado">
+  <div class="modal">
+    <h3 id="modal-titulo-partido">Cargar resultado</h3>
+    <p class="subtitulo-modal" id="modal-sub-partido"></p>
+    <div class="fila-campos">
+      <div class="campo">
+        <label id="label-gol1">Goles local</label>
+        <input type="number" min="0" id="modal-gol1" placeholder="0" />
+      </div>
+      <div class="campo">
+        <label id="label-gol2">Goles visitante</label>
+        <input type="number" min="0" id="modal-gol2" placeholder="0" />
+      </div>
+    </div>
+    <div class="modal-acciones">
+      <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-accion" id="btn-confirmar-resultado" onclick="confirmarResultado()">Guardar resultado</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANTALLA LOGIN ADMIN -->
+<div id="pantalla-login" class="pantalla activa">
+  <div class="login-card">
+    <div class="login-icon">&#9881;</div>
+    <h1>Panel Admin</h1>
+    <p class="subtitulo">Acceso restringido al organizador</p>
+    <div class="campo">
+      <label for="admin-usuario">Usuario admin</label>
+      <input type="text" id="admin-usuario" placeholder="admin" />
+    </div>
+    <div class="campo">
+      <label for="admin-pass">Contraseña</label>
+      <input type="password" id="admin-pass" placeholder="••••••" />
+    </div>
+    <button class="btn-primario" id="btn-admin-login">Ingresar</button>
+    <div class="error-msg" id="error-admin-login">Credenciales incorrectas.</div>
+  </div>
+</div>
+
+<!-- PANTALLA ADMIN -->
+<div id="pantalla-admin" class="pantalla">
+  <div class="header">
+    <div class="header-inner">
+      <div>
+        <div class="header-titulo">Panel Admin</div>
+        <div class="header-sub">Prode Mundial</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <a href="index.html" class="btn-header">Ver app</a>
+        <button class="btn-header" onclick="cerrarAdmin()">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tabs-inner">
+      <button class="tab activo" onclick="cambiarTab('partidos', this)">Partidos</button>
+      <button class="tab" onclick="cambiarTab('usuarios', this)">Usuarios</button>
+    </div>
+  </div>
+
+  <div class="contenido">
+
+    <!-- TAB PARTIDOS -->
+    <div id="tab-partidos" class="seccion">
+      <h2>Cargar partido nuevo</h2>
+      <div class="form-card">
+        <h3>Datos del partido</h3>
+        <div class="fila-campos">
+          <div class="campo">
+            <label>ID del partido</label>
+            <input type="text" id="np-id" placeholder="P01" />
+          </div>
+          <div class="campo">
+            <label>Grupo</label>
+            <input type="text" id="np-grupo" placeholder="Grupo A" />
+          </div>
+          <div class="campo">
+            <label>Equipo local</label>
+            <input type="text" id="np-eq1" placeholder="Argentina" />
+          </div>
+          <div class="campo">
+            <label>Bandera local (emoji)</label>
+            <input type="text" id="np-flag1" placeholder="🇦🇷" />
+          </div>
+          <div class="campo">
+            <label>Equipo visitante</label>
+            <input type="text" id="np-eq2" placeholder="Brasil" />
+          </div>
+          <div class="campo">
+            <label>Bandera visitante (emoji)</label>
+            <input type="text" id="np-flag2" placeholder="🇧🇷" />
+          </div>
+          <div class="campo">
+            <label>Fecha</label>
+            <input type="date" id="np-fecha" />
+          </div>
+          <div class="campo">
+            <label>Hora</label>
+            <input type="time" id="np-hora" />
+          </div>
+        </div>
+        <button class="btn-accion" id="btn-agregar-partido" onclick="agregarPartido()">Agregar partido</button>
+      </div>
+
+      <h2 style="margin-top:1.5rem">Partidos cargados</h2>
+      <div id="contenedor-tabla-partidos">
+        <div class="cargando"><div class="spinner"></div>Cargando...</div>
+      </div>
+    </div>
+
+    <!-- TAB USUARIOS -->
+    <div id="tab-usuarios" class="seccion" style="display:none">
+      <h2>Agregar usuario</h2>
+      <div class="form-card">
+        <h3>Nuevo jugador</h3>
+        <div class="fila-campos">
+          <div class="campo">
+            <label>Nombre de usuario</label>
+            <input type="text" id="nu-usuario" placeholder="juanperez" />
+          </div>
+          <div class="campo">
+            <label>Contraseña</label>
+            <input type="text" id="nu-pass" placeholder="contraseña123" />
+          </div>
+        </div>
+        <button class="btn-accion" id="btn-agregar-usuario" onclick="agregarUsuario()">Agregar jugador</button>
+      </div>
+
+      <h2 style="margin-top:1.5rem">Jugadores registrados</h2>
+      <div id="contenedor-usuarios">
+        <div class="cargando"><div class="spinner"></div>Cargando...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const URL_API = "https://script.google.com/macros/s/AKfycbxOu_DCu0LEcOj27K5PylAdBQzxBluFq45tgsFSro85Gq5Ozl8rnyDvflw0pGUkpIZJGw/exec";
+
+  let partidoEnModal = null;
+
+  function mostrarPantalla(id) {
+    document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
+    document.getElementById(id).classList.add("activa");
+  }
+
+  function mostrarToast(msg, tipo) {
+    const cont = document.getElementById("toast-container");
+    const t = document.createElement("div");
+    t.className = "toast " + tipo;
+    t.textContent = msg;
+    cont.appendChild(t);
+    setTimeout(() => t.remove(), 3100);
+  }
+
+  function cambiarTab(nombre, boton) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("activo"));
+    boton.classList.add("activo");
+    document.getElementById("tab-partidos").style.display = nombre === "partidos" ? "block" : "none";
+    document.getElementById("tab-usuarios").style.display = nombre === "usuarios" ? "block" : "none";
+    if (nombre === "usuarios") cargarUsuarios();
+  }
+
+  function cerrarAdmin() {
+    sessionStorage.removeItem("prode_admin");
+    mostrarPantalla("pantalla-login");
+  }
+
+  document.getElementById("btn-admin-login").addEventListener("click", loginAdmin);
+  document.getElementById("admin-pass").addEventListener("keydown", e => { if (e.key === "Enter") loginAdmin(); });
+
+  function loginAdmin() {
+    const usuario = document.getElementById("admin-usuario").value.trim();
+    const pass = document.getElementById("admin-pass").value.trim();
+    const errorEl = document.getElementById("error-admin-login");
+    const boton = document.getElementById("btn-admin-login");
+
+    if (!usuario || !pass) {
+      errorEl.textContent = "Completá usuario y contraseña.";
+      errorEl.classList.add("visible");
+      return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = "Verificando...";
+    errorEl.classList.remove("visible");
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "loginAdmin", usuario, contrasena: pass })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        sessionStorage.setItem("prode_admin", "1");
+        mostrarPantalla("pantalla-admin");
+        cargarPartidosAdmin();
+      } else {
+        errorEl.textContent = data.message || "Credenciales incorrectas.";
+        errorEl.classList.add("visible");
+      }
+    })
+    .catch(() => {
+      errorEl.textContent = "Error de conexión.";
+      errorEl.classList.add("visible");
+    })
+    .finally(() => {
+      boton.disabled = false;
+      boton.textContent = "Ingresar";
+    });
+  }
+
+  function cargarPartidosAdmin() {
+    const cont = document.getElementById("contenedor-tabla-partidos");
+    cont.innerHTML = '<div class="cargando"><div class="spinner"></div>Cargando...</div>';
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "obtenerPartidos", usuario: "_admin" })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "success") dibujarTablaPartidos(res.data);
+      else cont.innerHTML = '<p class="cargando">Error al cargar.</p>';
+    })
+    .catch(() => { cont.innerHTML = '<p class="cargando">Error de conexión.</p>'; });
+  }
+
+  function dibujarTablaPartidos(partidos) {
+    const cont = document.getElementById("contenedor-tabla-partidos");
+    if (!partidos.length) {
+      cont.innerHTML = '<p class="cargando">No hay partidos. Cargá el primero arriba.</p>';
+      return;
+    }
+    const filas = partidos.map(p => `
+      <tr>
+        <td><strong>${p.id_partido}</strong></td>
+        <td>${p.equipo_1} ${p.bandera_1 || ""} vs ${p.bandera_2 || ""} ${p.equipo_2}</td>
+        <td>${p.fecha || ""} ${p.hora || ""}</td>
+        <td><span class="badge-estado ${p.estado === 'jugado' ? 'badge-jugado' : 'badge-pendiente'}">${p.estado === 'jugado' ? 'Jugado' : 'Pendiente'}</span></td>
+        <td>${p.estado === 'jugado' ? p.goles_1_real + " - " + p.goles_2_real : '<button class="btn-tabla btn-resultado" onclick="abrirModalResultado(' + JSON.stringify(p).replace(/"/g, "&quot;") + ')">Cargar resultado</button>'}</td>
+      </tr>
+    `).join("");
+
+    cont.innerHTML = `
+      <table class="tabla-admin">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Partido</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    `;
+  }
+
+  function abrirModalResultado(partido) {
+    partidoEnModal = partido;
+    document.getElementById("modal-titulo-partido").textContent = "Resultado: " + partido.equipo_1 + " vs " + partido.equipo_2;
+    document.getElementById("modal-sub-partido").textContent = "Ingresá el resultado final del partido.";
+    document.getElementById("label-gol1").textContent = "Goles " + partido.equipo_1;
+    document.getElementById("label-gol2").textContent = "Goles " + partido.equipo_2;
+    document.getElementById("modal-gol1").value = "";
+    document.getElementById("modal-gol2").value = "";
+    document.getElementById("modal-resultado").classList.add("visible");
+  }
+
+  function cerrarModal() {
+    document.getElementById("modal-resultado").classList.remove("visible");
+    partidoEnModal = null;
+  }
+
+  function confirmarResultado() {
+    const g1 = document.getElementById("modal-gol1").value;
+    const g2 = document.getElementById("modal-gol2").value;
+
+    if (g1 === "" || g2 === "") {
+      mostrarToast("Completá ambos goles.", "error");
+      return;
+    }
+
+    const boton = document.getElementById("btn-confirmar-resultado");
+    boton.disabled = true;
+    boton.textContent = "Guardando...";
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({
+        action: "cargarResultado",
+        id_partido: partidoEnModal.id_partido,
+        goles_1_real: parseInt(g1),
+        goles_2_real: parseInt(g2)
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        mostrarToast("Resultado cargado y puntos calculados.", "exito");
+        cerrarModal();
+        cargarPartidosAdmin();
+      } else {
+        mostrarToast(data.message || "Error al guardar.", "error");
+      }
+    })
+    .catch(() => { mostrarToast("Error de conexión.", "error"); })
+    .finally(() => {
+      boton.disabled = false;
+      boton.textContent = "Guardar resultado";
+    });
+  }
+
+  function agregarPartido() {
+    const campos = {
+      id_partido: document.getElementById("np-id").value.trim(),
+      grupo: document.getElementById("np-grupo").value.trim(),
+      equipo_1: document.getElementById("np-eq1").value.trim(),
+      bandera_1: document.getElementById("np-flag1").value.trim(),
+      equipo_2: document.getElementById("np-eq2").value.trim(),
+      bandera_2: document.getElementById("np-flag2").value.trim(),
+      fecha: document.getElementById("np-fecha").value,
+      hora: document.getElementById("np-hora").value
+    };
+
+    if (!campos.id_partido || !campos.equipo_1 || !campos.equipo_2) {
+      mostrarToast("ID y equipos son obligatorios.", "error");
+      return;
+    }
+
+    const boton = document.getElementById("btn-agregar-partido");
+    boton.disabled = true;
+    boton.textContent = "Guardando...";
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "agregarPartido", ...campos })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        mostrarToast("Partido agregado.", "exito");
+        ["np-id","np-grupo","np-eq1","np-flag1","np-eq2","np-flag2","np-fecha","np-hora"].forEach(id => {
+          document.getElementById(id).value = "";
+        });
+        cargarPartidosAdmin();
+      } else {
+        mostrarToast(data.message || "Error.", "error");
+      }
+    })
+    .catch(() => { mostrarToast("Error de conexión.", "error"); })
+    .finally(() => {
+      boton.disabled = false;
+      boton.textContent = "Agregar partido";
+    });
+  }
+
+  function cargarUsuarios() {
+    const cont = document.getElementById("contenedor-usuarios");
+    cont.innerHTML = '<div class="cargando"><div class="spinner"></div>Cargando...</div>';
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "obtenerUsuarios" })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "success") {
+        if (!res.data.length) {
+          cont.innerHTML = '<p class="cargando">No hay usuarios. Agregá el primero.</p>';
+          return;
+        }
+        cont.innerHTML = '<div class="usuarios-lista">' +
+          res.data.map(u => `
+            <div class="usuario-item">
+              <span class="usuario-nombre">${u.usuario}</span>
+              <button class="btn-tabla btn-peligro" style="background:#fff5f5;border-color:#e53e3e;color:#e53e3e" onclick="eliminarUsuario('${u.usuario}')">Eliminar</button>
+            </div>
+          `).join("") +
+          '</div>';
+      } else {
+        cont.innerHTML = '<p class="cargando">Error al cargar.</p>';
+      }
+    })
+    .catch(() => { cont.innerHTML = '<p class="cargando">Error.</p>'; });
+  }
+
+  function agregarUsuario() {
+    const usuario = document.getElementById("nu-usuario").value.trim();
+    const pass = document.getElementById("nu-pass").value.trim();
+
+    if (!usuario || !pass) {
+      mostrarToast("Completá usuario y contraseña.", "error");
+      return;
+    }
+
+    const boton = document.getElementById("btn-agregar-usuario");
+    boton.disabled = true;
+    boton.textContent = "Guardando...";
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "agregarUsuario", usuario, contrasena: pass })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        mostrarToast("Usuario agregado.", "exito");
+        document.getElementById("nu-usuario").value = "";
+        document.getElementById("nu-pass").value = "";
+        cargarUsuarios();
+      } else {
+        mostrarToast(data.message || "Error.", "error");
+      }
+    })
+    .catch(() => { mostrarToast("Error de conexión.", "error"); })
+    .finally(() => {
+      boton.disabled = false;
+      boton.textContent = "Agregar jugador";
+    });
+  }
+
+  function eliminarUsuario(usuario) {
+    if (!confirm("¿Eliminar a " + usuario + "?")) return;
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "eliminarUsuario", usuario })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        mostrarToast("Usuario eliminado.", "exito");
+        cargarUsuarios();
+      } else {
+        mostrarToast(data.message || "Error.", "error");
+      }
+    })
+    .catch(() => { mostrarToast("Error.", "error"); });
+  }
+
+  if (sessionStorage.getItem("prode_admin")) {
+    mostrarPantalla("pantalla-admin");
+    cargarPartidosAdmin();
+  }
+</script>
+</body>
+</html>

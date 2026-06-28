@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prode Mundial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul: #74ACDF;
+      --azul-oscuro: #4a8fc7;
+      --amarillo: #F6B40E;
+      --amarillo-oscuro: #d49a00;
+      --blanco: #ffffff;
+      --gris-fondo: #f0f7ff;
+      --gris-texto: #4a5568;
+      --rojo: #e53e3e;
+      --verde: #38a169;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gris-fondo);
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    /* ===== PANTALLAS ===== */
+    .pantalla { display: none; }
+    .pantalla.activa { display: block; }
+
+    /* ===== LOGIN ===== */
+    #pantalla-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+      padding: 1rem;
+    }
+    #pantalla-login.activa { display: flex; }
+
+    .login-card {
+      background: var(--blanco);
+      border-radius: 1.5rem;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .login-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--amarillo);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 2.2rem;
+      box-shadow: 0 4px 15px rgba(246,180,14,0.4);
+    }
+
+    .login-card h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--azul);
+      margin-bottom: 0.3rem;
+    }
+
+    .login-card .subtitulo {
+      text-align: center;
+      color: var(--gris-texto);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .campo {
+      margin-bottom: 1.1rem;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.4rem;
+    }
+
+    .campo input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .campo input:focus {
+      border-color: var(--azul);
+    }
+
+    .btn-primario {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--azul);
+      color: var(--blanco);
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primario:hover { background: var(--azul-oscuro); }
+    .btn-primario:active { transform: scale(0.98); }
+
+    .error-msg {
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      color: var(--rojo);
+      padding: 0.7rem 1rem;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--azul);
+      color: var(--blanco);
+      padding: 0.9rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-icono {
+      width: 44px;
+      height: 44px;
+      background: var(--amarillo);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .header-titulo {
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .header-usuario {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .header-acciones {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-header {
+      padding: 0.45rem 0.9rem;
+      background: rgba(255,255,255,0.15);
+      color: var(--blanco);
+      border: 1.5px solid rgba(255,255,255,0.5);
+      border-radius: 0.6rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-header:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== NAV TABS ===== */
+    .nav-tabs {
+      background: var(--blanco);
+      border-bottom: 2px solid #e2e8f0;
+      padding: 0 1rem;
+    }
+
+    .nav-tabs-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .tab {
+      padding: 0.9rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gris-texto);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .tab.activo {
+      color: var(--azul);
+      border-bottom-color: var(--azul);
+    }
+
+    /* ===== CONTENIDO ===== */
+    .contenido {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    .seccion-titulo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .seccion-titulo h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--azul);
+    }
+
+    .seccion-titulo p {
+      color: var(--gris-texto);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ===== CARDS PARTIDOS ===== */
+    .grilla-partidos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .partido-card {
+      background: var(--blanco);
+      border-radius: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .partido-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .partido-card.jugado {
+      opacity: 0.85;
+    }
+
+    .partido-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .badge-grupo {
+      background: var(--azul);
+      color: var(--blanco);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .badge-jugado {
+      background: #e2e8f0;
+      color: var(--gris-texto);
+    }
+
+    .partido-fecha {
+      font-size: 0.78rem;
+      color: var(--gris-texto);
+    }
+
+    .partido-cuerpo {
+      padding: 1rem;
+    }
+
+    .partido-equipos {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .equipo-bloque {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .equipo-bandera {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .equipo-nombre {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-align: center;
+      color: #2d3748;
+    }
+
+    .inputs-goles {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .input-gol {
+      width: 52px;
+      height: 52px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border: 2px solid var(--azul);
+      border-radius: 0.6rem;
+      font-family: inherit;
+      outline: none;
+      color: #2d3748;
+      transition: border-color 0.2s;
+    }
+
+    .input-gol:focus {
+      border-color: var(--amarillo);
+      box-shadow: 0 0 0 3px rgba(246,180,14,0.2);
+    }
+
+    .input-gol:disabled {
+      background: #f7fafc;
+      border-color: #e2e8f0;
+      color: #a0aec0;
+    }
+
+    .separador-vs {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #a0aec0;
+    }
+
+    .resultado-real {
+      margin-top: 0.9rem;
+      text-align: center;
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      color: var(--verde);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .btn-guardar-prono {
+      width: 100%;
+      margin-top: 0.9rem;
+      padding: 0.6rem;
+      background: var(--azul);
+      color: var(--blanco);
+      border: none;
+      border-radius: 0.6rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-guardar-prono:hover { background: var(--azul-oscuro); }
+    .btn-guardar-prono:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    /* ===== TABLA POSICIONES ===== */
+    .tabla-pos {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--blanco);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+
+    .tabla-pos thead {
+      background: var(--azul);
+      color: var(--blanco);
+    }
+
+    .tabla-pos th, .tabla-pos td {
+      padding: 0.85rem 1.1rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .tabla-pos th {
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tabla-pos tbody tr {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.15s;
+    }
+
+    .tabla-pos tbody tr:hover { background: #f7faff; }
+
+    .tabla-pos tbody tr:last-child { border-bottom: none; }
+
+    .fila-lider { background: #fffbeb !important; }
+    .fila-lider td { font-weight: 700; }
+
+    .pos-numero { font-weight: 700; color: var(--gris-texto); }
+    .pos-puntos { font-weight: 800; color: var(--azul); }
+
+    .medalla { font-size: 1.1rem; }
+
+    /* ===== LOADING ===== */
+    .cargando {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--gris-texto);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--azul);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      top: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 0.75rem 1.3rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--blanco);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    }
+
+    .toast.exito { background: var(--verde); }
+    .toast.error { background: var(--rojo); }
+
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .header-titulo { font-size: 1.1rem; }
+      .grilla-partidos { grid-template-columns: 1fr; }
+      .equipo-bandera { font-size: 2.4rem; }
+      .input-gol { width: 46px; height: 46px; font-size: 1.2rem; }
+      .btn-header span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ========== PANTALLA LOGIN ========== -->
+<div id="pantalla-login" class="pantalla activa">
+  <div class="login-card">
+    <div class="login-icon">&#127942;</div>
+    <h1>Prode Mundial</h1>
+    <p class="subtitulo">Predeci los resultados y ganá</p>
+
+    <div class="campo">
+      <label for="input-usuario">Usuario</label>
+      <input type="text" id="input-usuario" placeholder="Tu nombre de usuario" autocomplete="username" />
+    </div>
+
+    <div class="campo">
+      <label for="input-contrasena">Contraseña</label>
+      <input type="password" id="input-contrasena" placeholder="Tu contraseña" autocomplete="current-password" />
+    </div>
+
+    <button class="btn-primario" id="btn-ingresar">Entrar a jugar</button>
+
+    <div class="error-msg" id="error-login">Usuario o contraseña incorrectos.</div>
+  </div>
+</div>
+
+<!-- ========== PANTALLA APP ========== -->
+<div id="pantalla-app" class="pantalla">
+
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <div class="header-icono">&#127942;</div>
+        <div>
+          <div class="header-titulo">Prode Mundial</div>
+          <div class="header-usuario">Hola, <span id="nombre-usuario-activo"></span></div>
+        </div>
+      </div>
+      <div class="header-acciones">
+        <button class="btn-header" onclick="cerrarSesion()">
+          <span>Salir</span> &#x2192;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tabs-inner">
+      <button class="tab activo" onclick="cambiarTab('partidos', this)">Partidos</button>
+      <button class="tab" onclick="cambiarTab('posiciones', this)">Tabla</button>
+    </div>
+  </div>
+
+  <div class="contenido">
+
+    <div id="tab-partidos">
+      <div class="seccion-titulo">
+        <h2>Predecí los resultados</h2>
+        <p>Ingresá tu pronóstico antes de que empiece cada partido</p>
+      </div>
+      <div class="grilla-partidos" id="contenedor-partidos">
+        <div class="cargando">
+          <div class="spinner"></div>
+          Cargando partidos...
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-posiciones" style="display:none">
+      <div class="seccion-titulo">
+        <h2>Tabla de posiciones</h2>
+        <p>Ranking actualizado en tiempo real</p>
+      </div>
+      <table class="tabla-pos">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jugador</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-posiciones-body">
+          <tr><td colspan="3" class="cargando"><div class="spinner"></div> Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const URL_API = "https://script.google.com/macros/s/AKfycbxOu_DCu0LEcOj27K5PylAdBQzxBluFq45tgsFSro85Gq5Ozl8rnyDvflw0pGUkpIZJGw/exec";
+
+  let usuarioActual = "";
+
+  function mostrarPantalla(id) {
+    document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
+    document.getElementById(id).classList.add("activa");
+  }
+
+  function mostrarToast(msg, tipo) {
+    const cont = document.getElementById("toast-container");
+    const t = document.createElement("div");
+    t.className = "toast " + tipo;
+    t.textContent = msg;
+    cont.appendChild(t);
+    setTimeout(() => t.remove(), 3100);
+  }
+
+  function cambiarTab(nombre, boton) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("activo"));
+    boton.classList.add("activo");
+    document.getElementById("tab-partidos").style.display = nombre === "partidos" ? "block" : "none";
+    document.getElementById("tab-posiciones").style.display = nombre === "posiciones" ? "block" : "none";
+    if (nombre === "posiciones") cargarPosiciones();
+  }
+
+  function cerrarSesion() {
+    sessionStorage.removeItem("prode_usuario");
+    usuarioActual = "";
+    mostrarPantalla("pantalla-login");
+  }
+
+  document.getElementById("btn-ingresar").addEventListener("click", iniciarSesion);
+  document.getElementById("input-contrasena").addEventListener("keydown", e => { if (e.key === "Enter") iniciarSesion(); });
+
+  function iniciarSesion() {
+    const usuario = document.getElementById("input-usuario").value.trim();
+    const contrasena = document.getElementById("input-contrasena").value.trim();
+    const errorEl = document.getElementById("error-login");
+
+    if (!usuario || !contrasena) {
+      errorEl.textContent = "Completá usuario y contraseña.";
+      errorEl.classList.add("visible");
+      return;
+    }
+
+    const boton = document.getElementById("btn-ingresar");
+    boton.disabled = true;
+    boton.textContent = "Verificando...";
+    errorEl.classList.remove("visible");
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "login", usuario, contrasena })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        usuarioActual = data.usuario || usuario;
+        sessionStorage.setItem("prode_usuario", usuarioActual);
+        document.getElementById("nombre-usuario-activo").textContent = usuarioActual;
+        mostrarPantalla("pantalla-app");
+        cargarPartidos();
+      } else {
+        errorEl.textContent = data.message || "Usuario o contraseña incorrectos.";
+        errorEl.classList.add("visible");
+      }
+    })
+    .catch(() => {
+      errorEl.textContent = "No se pudo conectar. Revisá tu conexión.";
+      errorEl.classList.add("visible");
+    })
+    .finally(() => {
+      boton.disabled = false;
+      boton.textContent = "Entrar a jugar";
+    });
+  }
+
+  function cargarPartidos() {
+    const cont = document.getElementById("contenedor-partidos");
+    cont.innerHTML = '<div class="cargando"><div class="spinner"></div>Cargando partidos...</div>';
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "obtenerPartidos", usuario: usuarioActual })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "success") dibujarPartidos(res.data);
+      else cont.innerHTML = '<p class="cargando">No se pudieron cargar los partidos.</p>';
+    })
+    .catch(() => {
+      cont.innerHTML = '<p class="cargando">Error de conexión.</p>';
+    });
+  }
+
+  function dibujarPartidos(partidos) {
+    const cont = document.getElementById("contenedor-partidos");
+    if (!partidos.length) {
+      cont.innerHTML = '<p class="cargando">No hay partidos cargados todavía.</p>';
+      return;
+    }
+    cont.innerHTML = "";
+
+    partidos.forEach(p => {
+      const jugado = p.estado === "jugado";
+      const card = document.createElement("div");
+      card.className = "partido-card" + (jugado ? " jugado" : "");
+
+      card.innerHTML = `
+        <div class="partido-header">
+          <span class="badge-grupo ${jugado ? 'badge-jugado' : ''}">${p.grupo || ""}</span>
+          <span class="partido-fecha">${p.fecha || ""} ${p.hora || ""}</span>
+        </div>
+        <div class="partido-cuerpo">
+          <div class="partido-equipos">
+            <div class="equipo-bloque">
+              <span class="equipo-bandera">${p.bandera_1 || ""}</span>
+              <span class="equipo-nombre">${p.equipo_1}</span>
+            </div>
+            <div class="inputs-goles">
+              <input type="text" inputmode="numeric" maxlength="2"
+                class="input-gol" id="gol1-${p.id_partido}"
+                value="${p.prono_1 !== undefined && p.prono_1 !== null && p.prono_1 !== '' ? p.prono_1 : ''}"
+                placeholder="-"
+                ${jugado ? "disabled" : ""}>
+              <span class="separador-vs">:</span>
+              <input type="text" inputmode="numeric" maxlength="2"
+                class="input-gol" id="gol2-${p.id_partido}"
+                value="${p.prono_2 !== undefined && p.prono_2 !== null && p.prono_2 !== '' ? p.prono_2 : ''}"
+                placeholder="-"
+                ${jugado ? "disabled" : ""}>
+            </div>
+            <div class="equipo-bloque">
+              <span class="equipo-bandera">${p.bandera_2 || ""}</span>
+              <span class="equipo-nombre">${p.equipo_2}</span>
+            </div>
+          </div>
+          ${jugado
+            ? `<div class="resultado-real">Resultado: ${p.goles_1_real} - ${p.goles_2_real}</div>`
+            : `<button class="btn-guardar-prono" onclick="guardarPronostico('${p.id_partido}', this)">Guardar pronóstico</button>`
+          }
+        </div>
+      `;
+      cont.appendChild(card);
+    });
+  }
+
+  function guardarPronostico(idPartido, boton) {
+    const g1 = document.getElementById("gol1-" + idPartido).value;
+    const g2 = document.getElementById("gol2-" + idPartido).value;
+
+    if (g1 === "" || g2 === "") {
+      mostrarToast("Completá ambos goles antes de guardar.", "error");
+      return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = "Guardando...";
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({
+        action: "guardarPronostico",
+        usuario: usuarioActual,
+        id_partido: idPartido,
+        goles_1: parseInt(g1),
+        goles_2: parseInt(g2)
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        mostrarToast("Pronóstico guardado.", "exito");
+        boton.textContent = "Actualizar pronóstico";
+      } else {
+        mostrarToast(data.message || "Error al guardar.", "error");
+        boton.textContent = "Guardar pronóstico";
+      }
+      boton.disabled = false;
+    })
+    .catch(() => {
+      mostrarToast("Error de red.", "error");
+      boton.disabled = false;
+      boton.textContent = "Guardar pronóstico";
+    });
+  }
+
+  function cargarPosiciones() {
+    const body = document.getElementById("tabla-posiciones-body");
+    body.innerHTML = '<tr><td colspan="3" class="cargando"><div class="spinner"></div></td></tr>';
+
+    fetch(URL_API, {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({ action: "obtenerPosiciones" })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "success") dibujarPosiciones(res.data);
+      else body.innerHTML = '<tr><td colspan="3" style="padding:2rem;text-align:center;color:#a0aec0">No hay datos todavía.</td></tr>';
+    })
+    .catch(() => {
+      body.innerHTML = '<tr><td colspan="3" style="padding:2rem;text-align:center;color:#e53e3e">Error de conexión.</td></tr>';
+    });
+  }
+
+  function dibujarPosiciones(ranking) {
+    const body = document.getElementById("tabla-posiciones-body");
+    if (!ranking.length) {
+      body.innerHTML = '<tr><td colspan="3" style="padding:2rem;text-align:center;color:#a0aec0">Sin puntos calculados aún.</td></tr>';
+      return;
+    }
+    const medallas = ["&#127947;", "&#129352;", "&#129353;"];
+    body.innerHTML = ranking.map((r, i) => `
+      <tr class="${i === 0 ? 'fila-lider' : ''}">
+        <td class="pos-numero">${medallas[i] !== undefined ? '<span class="medalla">' + medallas[i] + '</span>' : '#' + (i + 1)}</td>
+        <td>${r.usuario}</td>
+        <td class="pos-puntos">${r.puntos} pts</td>
+      </tr>
+    `).join("");
+  }
+
+  const sesionGuardada = sessionStorage.getItem("prode_usuario");
+  if (sesionGuardada) {
+    usuarioActual = sesionGuardada;
+    document.getElementById("nombre-usuario-activo").textContent = usuarioActual;
+    mostrarPantalla("pantalla-app");
+    cargarPartidos();
+  }
+</script>
+</body>
+</html>
