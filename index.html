@@ -525,6 +525,7 @@
   <div class="login-card">
     <div class="login-icon">&#127942;</div>
     <h1>Prode Mundial</h1>
+    <p class="subtitulo">Predeci los resultados y ganá</p>
 
     <div class="campo">
       <label for="input-usuario">Usuario</label>
@@ -612,10 +613,16 @@
   let usuarioActual = "";
 
   function mostrarPantalla(id) {
-    document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
-    document.getElementById(id).classList.add("activa");
+    const login = document.getElementById("pantalla-login");
+    const app = document.getElementById("pantalla-app");
+    if (id === "pantalla-login") {
+      login.style.display = "flex";
+      app.style.display = "none";
+    } else {
+      login.style.display = "none";
+      app.style.display = "block";
+    }
   }
-
   function mostrarToast(msg, tipo) {
     const cont = document.getElementById("toast-container");
     const t = document.createElement("div");
